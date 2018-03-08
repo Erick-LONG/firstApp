@@ -10,6 +10,14 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin')
 const portfinder = require('portfinder')
 
+/* datura_lj 增加express 20171126 */
+const express = require('express')
+const app = express()
+var appData = require('../goods.json')//加载本地数据文件
+var goods = appData.goods
+var apiRoutes = express.Router()
+app.use('/api', apiRoutes)
+
 const HOST = process.env.HOST
 const PORT = process.env.PORT && Number(process.env.PORT)
 
@@ -41,8 +49,18 @@ const devWebpackConfig = merge(baseWebpackConfig, {
     proxy: config.dev.proxyTable,
     quiet: true, // necessary for FriendlyErrorsPlugin
     watchOptions: {
-      poll: config.dev.poll,
-    }
+          poll: config.dev.poll,
+        },
+    /* datura_lj 增加express 20171126 */
+      before(app) {
+        app.get('/api/goods', (req, res) => {
+          res.json({
+            code: 0,
+            data: goods
+          })
+        })
+      }
+      /* datura_lj 增加路由规则 end */
   },
   plugins: [
     new webpack.DefinePlugin({
